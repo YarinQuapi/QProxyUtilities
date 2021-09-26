@@ -1,0 +1,6 @@
+# Format
+date_format: "MMM dd, yyyy HH:mm:ss"
+
+# Error messages
+not_player: "&cSorry, you must be a player to execute this command."
+player_not_found: "&cSorry, we couldn't find the player."

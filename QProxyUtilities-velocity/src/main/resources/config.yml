@@ -1,0 +1,19 @@
+# Global chats accessible by using a char at the start of a message
+chats:
+  '#':
+    prefix: "§e§lSHOUT §7%1$s §8-> §r"
+    permission: qproxyutilities.chats.shout
+  '@':
+    prefix: "§b§lSC §7%1$s §8-> §r"
+    permission: qproxyutilities.chats.staffchat
+
+reports:
+  enabled: true
+
+mysql:
+  host:
+  port: 3306
+  database: qproxyutilities
+  user:
+  pass:
+  ssl: false

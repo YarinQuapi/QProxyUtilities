@@ -1,0 +1,4 @@
+name: QProxyUtilities
+version: '${project.version}'
+main: me.yarinlevi.qproxyutilities.QProxyUtilitiesBungeeCord
+author: Quapi
