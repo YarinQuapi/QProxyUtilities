@@ -1,13 +1,16 @@
 package me.yarinlevi.qproxyutilities;
 
 import com.google.inject.Inject;
-import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
+import me.yarinlevi.qproxyutilities.commands.FindCommand;
+import me.yarinlevi.qproxyutilities.commands.ReportCommand;
 import me.yarinlevi.qproxyutilities.listeners.PlayerChatListener;
+import me.yarinlevi.qproxyutilities.utilities.MessagesUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -53,12 +56,19 @@ public class QProxyUtilitiesVelocity {
         registerFile(file1, "messages.yml");
         registerFile(file2, "config.yml");
 
-        //new MessagesUtils();
+        new MessagesUtils();
+
+        try {
+            this.config = YamlConfiguration.getProvider(YamlConfiguration.class).load(new File(dataDirectory.toFile() + "\\config.yml"));
+            this.mysql = new MySQLHandler(this.config);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         server.getEventManager().register(this, new PlayerChatListener());
-
-        this.config = new Configuration(dataDirectory.toFile() + "\\config.yml");
-        this.mysql = new MySQLHandler(this.config);
+        server.getCommandManager().register("report", new ReportCommand());
+        server.getCommandManager().register("find", new FindCommand(), "locate", "locateplayer");
     }
 
     private void registerFile(File file, String streamFileName) {

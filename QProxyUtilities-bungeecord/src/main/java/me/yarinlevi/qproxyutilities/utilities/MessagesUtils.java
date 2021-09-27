@@ -1,55 +1,61 @@
 package me.yarinlevi.qproxyutilities.utilities;
+import me.yarinlevi.qproxyutilities.Configuration;
 import me.yarinlevi.qproxyutilities.QProxyUtilitiesBungeeCord;
+import me.yarinlevi.qproxyutilities.YamlConfiguration;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.config.Configuration;
-import net.md_5.bungee.config.YamlConfiguration;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class MessagesUtils {
-    private static final Map<String, String> messages = new HashMap<>();
     static Pattern urlPattern = Pattern.compile("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
+    private static Configuration messagesData;
 
     public MessagesUtils() {
-        Configuration messagesData;
-
         try {
-            messagesData = YamlConfiguration.getProvider(YamlConfiguration.class).load(new FileReader(new File(QProxyUtilitiesBungeeCord.getInstance().getDataFolder(), "messages.yml")));
+            messagesData = me.yarinlevi.qproxyutilities.YamlConfiguration.getProvider(me.yarinlevi.qproxyutilities.YamlConfiguration.class).load(new File(QProxyUtilitiesBungeeCord.getInstance().getDataFolder(), "messages.yml"));
 
-            messagesData.getKeys().forEach(key -> messages.put(key, messagesData.getString(key)));
-
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public static void broadcast(String permission, String key, Object... args) {
+        TextComponent message = getMessageLines(key, args);
+
+        for (ProxiedPlayer player : QProxyUtilitiesBungeeCord.getInstance().getProxy().getPlayers().stream().filter(x->x.hasPermission(permission)).collect(Collectors.toList())) {
+            player.sendMessage(message);
+        }
+    }
+
     public static void reload() {
-        messages.clear();
-
-        Configuration messagesData;
-
         try {
-            messagesData = YamlConfiguration.getProvider(YamlConfiguration.class).load(new FileReader(new File(QProxyUtilitiesBungeeCord.getInstance().getDataFolder(), "messages.yml")));
-
-            messagesData.getKeys().forEach(key -> messages.put(key, messagesData.getString(key)));
-
-        } catch (FileNotFoundException e) {
+            messagesData = me.yarinlevi.qproxyutilities.YamlConfiguration.getProvider(YamlConfiguration.class).load(new File(QProxyUtilitiesBungeeCord.getInstance().getDataFolder(), "messages.yml"));
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static TextComponent getMessage(String key, Object... args) {
-        return new TextComponent(String.format(messages.get(key).replaceAll("&", "§"), args));
+        return new TextComponent(String.format(messagesData.getString(key).replaceAll("&", "§"), args));
+    }
+
+    public static TextComponent getMessageLines(String key, Object... args) {
+        StringBuilder message = new StringBuilder();
+
+        for (String string : messagesData.getStringList(key)) {
+            message.append(string.replaceAll("&", "§"));
+        }
+
+        return new TextComponent(message.toString().formatted(args));
     }
 
     public static TextComponent getMessageWithClickable(String key, Object... args) {
-        String msg = String.format(messages.get(key).replaceAll("&", "§"), args);
+        String msg = String.format(messagesData.getString(key).replaceAll("&", "§"), args);
 
         TextComponent textComponent = new TextComponent();
 
@@ -72,6 +78,6 @@ public class MessagesUtils {
     }
 
     public static String getRawString(String key) {
-        return messages.getOrDefault(key, key).replaceAll("&", "§");
+        return messagesData.getString(key, key).replaceAll("&", "§");
     }
 }

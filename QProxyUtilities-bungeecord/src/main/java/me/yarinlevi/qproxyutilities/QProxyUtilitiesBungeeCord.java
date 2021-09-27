@@ -1,6 +1,7 @@
 package me.yarinlevi.qproxyutilities;
 
 import lombok.Getter;
+import me.yarinlevi.qproxyutilities.commands.Report;
 import me.yarinlevi.qproxyutilities.listeners.PlayerChatListener;
 import me.yarinlevi.qproxyutilities.utilities.MessagesUtils;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -32,10 +33,15 @@ public final class QProxyUtilitiesBungeeCord extends Plugin {
 
         new MessagesUtils();
 
-        getProxy().getPluginManager().registerListener(this, new PlayerChatListener());
+        try {
+            this.config = YamlConfiguration.getProvider(YamlConfiguration.class).load(new File(getDataFolder(), "config.yml"));
+            this.mysql = new MySQLHandler(this.config);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        this.config = new Configuration(getDataFolder() + "\\config.yml");
-        this.mysql = new MySQLHandler(this.config);
+        getProxy().getPluginManager().registerListener(this, new PlayerChatListener());
+        getProxy().getPluginManager().registerCommand(this, new Report("report", "qproxyutilities.report"));
     }
 
     private void registerFile(File file, String streamFileName) {

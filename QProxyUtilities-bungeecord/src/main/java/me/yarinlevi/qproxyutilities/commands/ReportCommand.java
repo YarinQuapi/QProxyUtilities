@@ -10,8 +10,8 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.UUID;
 
-public class Report extends Command {
-    public Report(String name, String permission, String... aliases) {
+public class ReportCommand extends Command {
+    public ReportCommand(String name, String permission, String... aliases) {
         super(name, permission, aliases);
     }
 
@@ -32,7 +32,7 @@ public class Report extends Command {
                     String formattedDate = new SimpleDateFormat(MessagesUtils.getRawString("date_format")).format(new Date(System.currentTimeMillis()));
 
                     String sql = String.format("INSERT INTO `reports`(`reported_uuid`,`reporter_uuid`,`reported_name`,`reporter_name`,`reported_server`,`reporter_server`, `date_added`) VALUES(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");"
-                            ,uuid, player.getUniqueId(), name, player.getName(), reportedServer, reportingServer, System.currentTimeMillis());
+                                                ,uuid, player.getUniqueId(), name, player.getName(), reportedServer, reportingServer, System.currentTimeMillis());
 
                     QProxyUtilitiesBungeeCord.getInstance().getMysql().insert(sql);
 

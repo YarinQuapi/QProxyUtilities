@@ -1,53 +1,62 @@
 package me.yarinlevi.qproxyutilities.utilities;
 
+import com.velocitypowered.api.proxy.Player;
+import me.yarinlevi.qproxyutilities.Configuration;
 import me.yarinlevi.qproxyutilities.QProxyUtilitiesVelocity;
-import me.yarinlevi.qyamlconfig.Configuration;
-import me.yarinlevi.qyamlconfig.YamlConfiguration;
+import me.yarinlevi.qproxyutilities.YamlConfiguration;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class MessagesUtils {
-    private static final Map<String, String> messages = new HashMap<>();
     static Pattern urlPattern = Pattern.compile("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)");
+    private static Configuration messagesData;
 
     public MessagesUtils() {
-        Configuration messagesData;
-
         try {
-
             messagesData = YamlConfiguration.getProvider(YamlConfiguration.class).load(new File(QProxyUtilitiesVelocity.getInstance().getDataDirectory().toFile(), "messages.yml"));
-            messagesData.getKeys().forEach(key -> messages.put(key, messagesData.getString(key)));
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public static void broadcast(String permission, String key, Object... args) {
+        Component message = getMessageLines(key, args);
+
+        for (Player player : QProxyUtilitiesVelocity.getInstance().getServer().getAllPlayers().stream().filter(x->x.hasPermission(permission)).collect(Collectors.toList())) {
+            player.sendMessage(message);
+        }
+    }
+
     public static void reload() {
-        messages.clear();
-
-        Configuration messagesData;
-
         try {
             messagesData = YamlConfiguration.getProvider(YamlConfiguration.class).load(new File(QProxyUtilitiesVelocity.getInstance().getDataDirectory().toFile(), "messages.yml"));
-            messagesData.getKeys().forEach(key -> messages.put(key, messagesData.getString(key)));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static Component getMessage(String key, Object... args) {
-        return Component.text(String.format(messages.get(key).replaceAll("&", "§"), args));
+        return Component.text(String.format(messagesData.getString(key).replaceAll("&", "§"), args));
+    }
+
+    public static Component getMessageLines(String key, Object... args) {
+        StringBuilder message = new StringBuilder();
+
+        for (String string : messagesData.getStringList(key)) {
+            message.append(string.replaceAll("&", "§"));
+        }
+
+        return Component.text(message.toString().formatted(args));
     }
 
     public static Component getMessageWithClickable(String key, Object... args) {
-        String msg = String.format(messages.get(key).replaceAll("&", "§"), args);
+        String msg = String.format(messagesData.getString(key).replaceAll("&", "§"), args);
 
         Component textComponent = Component.empty();
 
@@ -68,6 +77,6 @@ public class MessagesUtils {
     }
 
     public static String getRawString(String key) {
-        return messages.getOrDefault(key, key).replaceAll("&", "§");
+        return messagesData.getString(key, key).replaceAll("&", "§");
     }
 }
