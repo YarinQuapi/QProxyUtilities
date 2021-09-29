@@ -54,6 +54,16 @@ public class MessagesUtils {
         return new TextComponent(message.toString().formatted(args));
     }
 
+    public static TextComponent getMessageWithCommand(String command, String key, Object... args) {
+        String msg = String.format(messagesData.getString(key).replaceAll("&", "§"), args);
+
+        TextComponent textComponent = new TextComponent(msg);
+
+        textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+
+        return textComponent;
+    }
+
     public static TextComponent getMessageWithClickable(String key, Object... args) {
         String msg = String.format(messagesData.getString(key).replaceAll("&", "§"), args);
 

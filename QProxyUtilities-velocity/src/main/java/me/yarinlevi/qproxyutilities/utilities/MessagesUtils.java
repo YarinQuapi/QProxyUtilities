@@ -55,7 +55,17 @@ public class MessagesUtils {
         return Component.text(message.toString().formatted(args));
     }
 
-    public static Component getMessageWithClickable(String key, Object... args) {
+    public static Component getMessageWithCommand(String command, String key, Object... args) {
+        String msg = String.format(messagesData.getString(key).replaceAll("&", "§"), args);
+
+        Component textComponent = Component.text(msg);
+
+        textComponent = textComponent.clickEvent(ClickEvent.runCommand(command));
+
+        return textComponent;
+    }
+
+    public static Component getMessageWithURL(String key, Object... args) {
         String msg = String.format(messagesData.getString(key).replaceAll("&", "§"), args);
 
         Component textComponent = Component.empty();

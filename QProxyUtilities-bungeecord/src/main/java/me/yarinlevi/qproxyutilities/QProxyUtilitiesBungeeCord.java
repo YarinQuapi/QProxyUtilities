@@ -1,10 +1,13 @@
 package me.yarinlevi.qproxyutilities;
 
 import lombok.Getter;
-import me.yarinlevi.qproxyutilities.commands.Report;
+import me.yarinlevi.qproxyutilities.commands.ReportCommand;
+import me.yarinlevi.qproxyutilities.commands.ReportListCommand;
+import me.yarinlevi.qproxyutilities.commands.ViewReportCommand;
 import me.yarinlevi.qproxyutilities.listeners.PlayerChatListener;
 import me.yarinlevi.qproxyutilities.utilities.MessagesUtils;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,13 +38,28 @@ public final class QProxyUtilitiesBungeeCord extends Plugin {
 
         try {
             this.config = YamlConfiguration.getProvider(YamlConfiguration.class).load(new File(getDataFolder(), "config.yml"));
-            this.mysql = new MySQLHandler(this.config);
+            if (this.getConfig().getBoolean("reports.enabled")) {
+                this.mysql = new MySQLHandler(this.config);
+            } else {
+                this.getLogger().info("Reports are disabled! mysql connection process aborted!");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        getProxy().getPluginManager().registerListener(this, new PlayerChatListener());
-        getProxy().getPluginManager().registerCommand(this, new Report("report", "qproxyutilities.report"));
+        PluginManager pm = getProxy().getPluginManager();
+
+        pm.registerListener(this, new PlayerChatListener());
+
+        if (this.config.getBoolean("reports.enabled")) {
+            if (this.mysql.isEnabled()) {
+                pm.registerCommand(this, new ReportCommand("report", "qproxyutilities.report"));
+                pm.registerCommand(this, new ReportListCommand("reportlist", "qproxyutilities.reports.admin"));
+                pm.registerCommand(this, new ViewReportCommand("viewreport", "qproxyutilities.reports.admin"));
+            } else {
+                this.getLogger().severe("No connection to MySQL database! reports system disabled! check your configuration.");
+            }
+        }
     }
 
     private void registerFile(File file, String streamFileName) {

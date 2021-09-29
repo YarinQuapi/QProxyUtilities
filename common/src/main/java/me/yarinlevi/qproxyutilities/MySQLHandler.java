@@ -13,8 +13,19 @@ import java.sql.Statement;
  */
 public class MySQLHandler {
     private Connection connection;
+    private boolean enabled = true;
 
     public MySQLHandler(Configuration config) {
+        if (config.getString("mysql.host") == null
+                || config.getString("mysql.database") == null
+                || config.getString("mysql.port") == null
+                || config.getString("mysql.user") == null
+                || config.getString("mysql.pass") == null) {
+            System.out.println("[QMySQL] Hey! you haven't configured your mysql connection! aborting connection!");
+            enabled = false;
+            return;
+        }
+
         String hostName = config.getString("mysql.host");
         String database = config.getString("mysql.database");
         int port = config.getInt("mysql.port");
@@ -58,6 +69,10 @@ public class MySQLHandler {
             throwables.printStackTrace();
             System.out.println("Something went horribly wrong while connecting to database!");
         }
+    }
+
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
     @Nullable

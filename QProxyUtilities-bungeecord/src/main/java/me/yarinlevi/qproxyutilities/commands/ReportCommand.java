@@ -49,7 +49,7 @@ public class ReportCommand extends Command {
                      * &7Time of report: &e%7$s\n
                      * &7Report ID: &e%8$s
                      */
-                    MessagesUtils.broadcast("qproxyutilities.reports.receive", "player_reported", name, uuid, reportedServer, player.getName(), player.getUniqueId(), reportingServer, formattedDate);
+                    MessagesUtils.broadcast("qproxyutilities.reports.admin", "player_reported", name, uuid, reportedServer, player.getName(), player.getUniqueId(), reportingServer, formattedDate);
 
                 } else {
                     sender.sendMessage(MessagesUtils.getMessage("player_not_found"));

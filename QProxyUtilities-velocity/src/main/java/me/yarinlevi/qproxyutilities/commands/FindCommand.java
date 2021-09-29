@@ -18,7 +18,7 @@ public class FindCommand implements SimpleCommand {
 
             QProxyUtilitiesVelocity.getInstance().getServer().getAllPlayers().stream().filter(x -> x.getUsername().equalsIgnoreCase(playerName)).findAny()
                     .ifPresentOrElse(proxiedPlayer ->
-                                    sender.sendMessage(MessagesUtils.getMessage("find_command", proxiedPlayer.getUsername(), proxiedPlayer.getCurrentServer().orElseThrow().getServerInfo().getName())),
+                                    sender.sendMessage(MessagesUtils.getMessageWithCommand("/server " + proxiedPlayer.getCurrentServer().orElseThrow().getServerInfo().getName(), "find_command", proxiedPlayer.getUsername(), proxiedPlayer.getCurrentServer().orElseThrow().getServerInfo().getName())),
                             () -> sender.sendMessage(MessagesUtils.getMessage("player_not_online")));
         }
     }
